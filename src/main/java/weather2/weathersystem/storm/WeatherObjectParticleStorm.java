@@ -10,8 +10,8 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import weather2.WeatherBlocks;
 import weather2.config.ConfigSand;
 import weather2.config.ConfigSnow;
@@ -72,12 +72,12 @@ public class WeatherObjectParticleStorm extends WeatherObject {
 	public static boolean isColdForStorm(Level world, Holder<Biome> biome, boolean forSpawn, BlockPos pos) {
 		//return biome.getPrecipitation() == Biome.Precipitation.SNOW;
 		//adjusted to this way to make it work with serene seasons
-		boolean canPrecip = biome.get().getPrecipitationAt(pos) == Biome.Precipitation.RAIN || biome.get().getPrecipitationAt(pos) == Biome.Precipitation.SNOW;
-		return canPrecip && CoroUtilCompatibility.coldEnoughToSnow(biome.get(), pos, world);
+		boolean canPrecip = biome.value().getPrecipitationAt(pos) == Biome.Precipitation.RAIN || biome.value().getPrecipitationAt(pos) == Biome.Precipitation.SNOW;
+		return canPrecip && CoroUtilCompatibility.coldEnoughToSnow(biome.value(), pos, world);
 	}
 
 	public static boolean isDesert(Holder<Biome> biome, boolean forSpawn) {
-		return biome.get().equals(Biomes.DESERT) || (!forSpawn && biome.get().equals(Biomes.RIVER)) || biome.unwrap().left().toString().toLowerCase().contains("desert");
+		return biome.value().equals(Biomes.DESERT) || (!forSpawn && biome.value().equals(Biomes.RIVER)) || biome.unwrap().left().toString().toLowerCase().contains("desert");
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import com.corosus.coroutil.util.CULog;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -15,8 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 import weather2.config.ConfigTornado;
@@ -59,7 +59,7 @@ public class WeatherUtil {
         //if (!ConfigTornado.Storm_Tornado_GrabList.equals(lastConfigChecked)) {
             lastConfigChecked = ConfigTornado.Storm_Tornado_GrabList;
             CULog.log("PRINTING OUT ALL WEATHER2 TORNADO GRABBABLE BLOCKS WITH CURRENT CONFIG: ");
-            ForgeRegistries.BLOCKS.forEach(block -> {
+            BuiltInRegistries.BLOCK.forEach(block -> {
                 List<BlockState> list = block.getStateDefinition().getPossibleStates();
                 for (BlockState state : list) {
                     boolean result = canGrabViaLists(state);
@@ -94,12 +94,13 @@ public class WeatherUtil {
     }
 
     public static TagKey<Block> getTagKeyFor(String str) {
-        return TagKey.create(ForgeRegistries.BLOCKS.getRegistryKey(), new ResourceLocation(str));
+        //return TagKey.create(ForgeRegistries.BLOCKS.getRegistryKey(), ResourceLocation.parse(str));
+        return TagKey.create(BuiltInRegistries.BLOCK.key(), ResourceLocation.parse(str));
     }
 
     public static boolean canGrabViaLists(BlockState state) {
         boolean returnVal = !ConfigTornado.Storm_Tornado_GrabListBlacklistMode;
-        ResourceLocation registeredName = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+        ResourceLocation registeredName = BuiltInRegistries.BLOCK.getKey(state.getBlock());
         if (listGrabBlockCache.containsKey(registeredName)) {
             return listGrabBlockCache.get(registeredName);
         }
@@ -260,7 +261,7 @@ public class WeatherUtil {
     }
 
     public static boolean canTornadoGrabBlockRefinedRules(BlockState state) {
-        ResourceLocation registeredName = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+        ResourceLocation registeredName = BuiltInRegistries.BLOCK.getKey(state.getBlock());
         if (registeredName.getNamespace().equals("dynamictrees")) {
             if (registeredName.getPath().contains("rooty") || registeredName.getPath().contains("branch")) {
                 return false;

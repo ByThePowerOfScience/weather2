@@ -2,14 +2,16 @@ package weather2;
 
 import java.util.HashMap;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class SoundRegistry {
 
 	private static HashMap<String, SoundEvent> lookupStringToEvent = new HashMap<String, SoundEvent>();
 
+	public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(BuiltInRegistries.SOUND_EVENT, Weather.MODID);
 
 	public static void init() {
 		register("env.waterfall");
@@ -47,11 +49,18 @@ public class SoundRegistry {
 	}
 
 	public static void register(String soundPath) {
-		ResourceLocation resLoc = new ResourceLocation(Weather.MODID, soundPath);
+		ResourceLocation resLoc = ResourceLocation.fromNamespaceAndPath(Weather.MODID, soundPath);
 		//SoundEvent event = new SoundEvent(resLoc).setRegistryName(resLoc);
 		SoundEvent event = SoundEvent.createVariableRangeEvent(resLoc);
 		//TODO: WIP SoundEvent event = SoundEvent.createVariableRangeEvent(resLoc).setRegistryName(resLoc);
-		ForgeRegistries.SOUND_EVENTS.register(resLoc, event);
+		//ForgeRegistries.SOUND_EVENTS.register(resLoc, event);
+		SOUND_EVENTS.register(
+				soundPath, // must match the resource location on the next line
+		() -> {
+			//SoundEvent event = SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(Weather.MODID, soundPath));
+			lookupStringToEvent.put(soundPath, event);
+			return event;
+		});
 		if (lookupStringToEvent.containsKey(soundPath)) {
 			System.out.println("WEATHER SOUNDS WARNING: duplicate sound registration for " + soundPath);
 		}

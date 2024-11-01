@@ -5,7 +5,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.DataFixTypes;
+import net.minecraft.world.level.ForcedChunksSavedData;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import weather2.IWorldData;
 import weather2.Weather;
@@ -406,7 +409,7 @@ public abstract class WeatherManager implements IWorldData {
 
 	public void read() {
 
-		WorldNBTData worldNBTData = ((ServerLevel)getWorld()).getDataStorage().computeIfAbsent(WorldNBTData::load, WorldNBTData::new, Weather.MODID + "-" + "weather_data");
+		WorldNBTData worldNBTData = ((ServerLevel)getWorld()).getDataStorage().computeIfAbsent(WorldNBTData.factory(), Weather.MODID + "-" + "weather_data");
 		worldNBTData.setDataHandler(this);
 
 		CULog.dbg("weather data: " + worldNBTData.getData());

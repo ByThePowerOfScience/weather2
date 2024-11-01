@@ -1,5 +1,6 @@
 package weather2.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,8 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import weather2.WeatherBlocks;
 import weather2.blockentity.SensorBlockEntity;
@@ -27,6 +28,8 @@ import weather2.blockentity.SensorBlockEntity;
 import java.util.List;
 
 public class SensorBlock extends BaseEntityBlock {
+
+	public static final MapCodec<SensorBlock> CODEC = simpleCodec(SensorBlock::new);
 
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -38,6 +41,11 @@ public class SensorBlock extends BaseEntityBlock {
 	}
 
 	@Override
+	protected MapCodec<? extends BaseEntityBlock> codec() {
+		return CODEC;
+	}
+
+	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
 		pBuilder.add(POWERED);
 	}
@@ -45,13 +53,6 @@ public class SensorBlock extends BaseEntityBlock {
 	@Override
 	public RenderShape getRenderShape(BlockState p_49232_) {
 		return RenderShape.MODEL;
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(ItemStack stack, BlockGetter worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-		super.appendHoverText(stack, worldIn, tooltip, flagIn);
-		//tooltip.add(Component.translatable(this.getDescriptionId() + ".desc").withStyle(ChatFormatting.GRAY));
 	}
 
 	@Nullable

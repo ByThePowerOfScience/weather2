@@ -10,14 +10,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import weather2.config.ClientConfigData;
 import weather2.config.ConfigMisc;
 import weather2.config.WeatherUtilConfig;
@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Mod.EventBusSubscriber(modid = Weather.MODID)
+@Mod(Weather.MODID)
 public class ServerTickHandler {
 	private static final Map<ResourceKey<Level>, WeatherManagerServer> MANAGERS = new Reference2ObjectOpenHashMap<>();
 	private static final HashMap<String, WeatherManagerServer> MANAGERSLOOKUP = new HashMap<>();
@@ -60,27 +60,25 @@ public class ServerTickHandler {
 	}
 
 	@SubscribeEvent
-	public static void tickServer(TickEvent.ServerTickEvent event) {
-		if (event.phase == TickEvent.Phase.START) {
-			for (WeatherManagerServer manager : MANAGERS.values()) {
-				//for non whitelisted dimensions i chose to still tick the manager, and also register it, so it can get cleaned up if people spawn stuff or change config
-				//if (WeatherUtilConfig.listDimensionsWeather.contains(manager.getWorld().dimension().location().toString())) {
-					manager.tick();
-				//}
-			}
-
-			processIMCMessages();
+	public static void tickServer(ServerTickEvent.Pre event) {
+		for (WeatherManagerServer manager : MANAGERS.values()) {
+			//for non whitelisted dimensions i chose to still tick the manager, and also register it, so it can get cleaned up if people spawn stuff or change config
+			//if (WeatherUtilConfig.listDimensionsWeather.contains(manager.getWorld().dimension().location().toString())) {
+			manager.tick();
+			//}
 		}
+
+		processIMCMessages();
 	}
 
 	@SubscribeEvent
-	public static void tickServer(TickEvent.LevelTickEvent event) {
+	public static void tickServer(LevelTickEvent.Post event) {
 
 		//TODO: TEMPPPPPPPPPPPP
 		//ConfigMisc.Aesthetic_Only_Mode = true;
 		//ConfigMisc.overcastMode = true;
 
-		if (event.level.dimension() == Level.OVERWORLD && event.phase == TickEvent.Phase.END && !event.level.isClientSide()) {
+		if (event.getLevel().dimension() == Level.OVERWORLD && !event.getLevel().isClientSide()) {
 			if (ConfigMisc.Aesthetic_Only_Mode) {
 				if (!ConfigMisc.overcastMode) {
 					ConfigMisc.overcastMode = true;
@@ -176,9 +174,9 @@ public class ServerTickHandler {
 	}
 
 	@SubscribeEvent
-	public static void tickPlayer(TickEvent.PlayerTickEvent event) {
-		if (!event.player.level().isClientSide()) {
-			syncServerConfigToClient(event.player);
+	public static void tickPlayer(PlayerTickEvent.Pre event) {
+		if (!event.getEntity().level().isClientSide()) {
+			syncServerConfigToClient(event.getEntity());
 		}
 	}
 
@@ -207,9 +205,11 @@ public class ServerTickHandler {
 		data.putString("command", "syncUpdate");
 		ClientConfigData.writeNBT(data);
 		if (player != null) {
-			WeatherNetworking.HANDLER.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new PacketNBTFromServer(data));
+			//WeatherNetworking.HANDLER.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new PacketNBTFromServer(data));
+			WeatherNetworkingv2.instance().serverSendToClientPlayer(data, player);
 		} else {
-			WeatherNetworking.HANDLER.send(PacketDistributor.ALL.noArg(), new PacketNBTFromServer(data));
+			//WeatherNetworking.HANDLER.send(PacketDistributor.ALL.noArg(), new PacketNBTFromServer(data));
+			WeatherNetworkingv2.instance().serverSendToClientAll(data);
 		}
 	}
 }

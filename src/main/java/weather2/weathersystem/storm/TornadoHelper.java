@@ -27,11 +27,11 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayerFactory;
-import net.minecraftforge.event.level.BlockEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import weather2.ClientTickHandler;
 import weather2.Weather;
 import weather2.config.*;
@@ -231,7 +231,7 @@ public class TornadoHelper {
 			int yStart = 0;
 			int yEnd = (int)storm.pos.y/* + 72*/;
 			int yInc = 1;
-			Biome bgb = parWorld.getBiome(new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))))).get();
+			Biome bgb = parWorld.getBiome(new BlockPos(WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(storm.pos.x), 0, Mth.floor(storm.pos.z))))).value();
 
 			//prevent grabbing in high areas (hills)
 			//TODO: 1.10 make sure minHeight/maxHeight converted to baseHeight/scale is correct, guessing we can just not factor in variation
@@ -557,7 +557,7 @@ public class TornadoHelper {
 				fakePlayerProfile = new GameProfile(UUID.fromString("1396b887-2570-4948-86e9-0633d1d22946"), "weather2FakePlayer");
 			}
 			BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, state, FakePlayerFactory.get((ServerLevel) world, fakePlayerProfile));
-			MinecraftForge.EVENT_BUS.post(event);
+			NeoForge.EVENT_BUS.post(event);
 			return !event.isCanceled();
 		} else {
     		return false;

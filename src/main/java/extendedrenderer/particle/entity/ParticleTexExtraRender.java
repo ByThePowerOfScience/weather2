@@ -183,10 +183,24 @@ public class ParticleTexExtraRender extends ParticleTexFX {
 		           vector3f.add(posX, posY, posZ);
 		        }
 
-				buffer.vertex(xx + avector3f[0].x(), yy + avector3f[0].y(), zz + avector3f[0].z()).uv(f1, f3).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(i).endVertex();
-				buffer.vertex(xx + avector3f[1].x(), yy + avector3f[1].y(), zz + avector3f[1].z()).uv(f1, f2).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(i).endVertex();
-				buffer.vertex(xx + avector3f[2].x(), yy + avector3f[2].y(), zz + avector3f[2].z()).uv(f, f2).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(i).endVertex();
-				buffer.vertex(xx + avector3f[3].x(), yy + avector3f[3].y(), zz + avector3f[3].z()).uv(f, f3).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(i).endVertex();
+				buffer.addVertex((float)(xx + avector3f[0].x()), (float)(yy + avector3f[0].y()), (float)(zz + avector3f[0].z()))
+						.setUv(f1, f3)
+						.setColor(this.rCol, this.gCol, this.bCol, this.alpha)
+						.setLight(i);
+				buffer.addVertex((float)(xx + avector3f[1].x()), (float)(yy + avector3f[1].y()), (float)(zz + avector3f[1].z()))
+						.setUv(f1, f2)
+						.setColor(this.rCol, this.gCol, this.bCol, this.alpha)
+						.setLight(i);
+				buffer.addVertex((float)(xx + avector3f[2].x()), (float)(yy + avector3f[2].y()), (float)(zz + avector3f[2].z()))
+						.setUv(f, f2)
+						.setColor(this.rCol, this.gCol, this.bCol, this.alpha)
+						.setLight(i);
+				buffer.addVertex((float)(xx + avector3f[3].x()), (float)(yy + avector3f[3].y()), (float)(zz + avector3f[3].z()))
+						.setUv(f, f3)
+						.setColor(this.rCol, this.gCol, this.bCol, this.alpha)
+						.setLight(i);
+
+
 			}
 		} catch (Throwable ex) {
 			ex.printStackTrace();

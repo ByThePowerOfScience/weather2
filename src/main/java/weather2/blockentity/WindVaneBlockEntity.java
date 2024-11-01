@@ -1,6 +1,7 @@
 package weather2.blockentity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
@@ -67,12 +68,12 @@ public class WindVaneBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public void load(final CompoundTag tag) {
-		super.load(tag);
+	public void loadAdditional(final CompoundTag tag, HolderLookup.Provider registries) {
+		super.loadAdditional(tag, registries);
 	}
 
 	@Override
-	protected void saveAdditional(final CompoundTag tag) {
-		super.saveAdditional(tag);
+	protected void saveAdditional(final CompoundTag tag, HolderLookup.Provider registries) {
+		super.saveAdditional(tag, registries);
 	}
 }

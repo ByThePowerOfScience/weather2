@@ -1,5 +1,6 @@
 package weather2.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -14,8 +15,15 @@ import weather2.blockentity.SirenBlockEntity;
 
 public class SirenBlock extends BaseEntityBlock {
 
+    public static final MapCodec<SirenBlock> CODEC = simpleCodec(SirenBlock::new);
+
     public SirenBlock(Properties p_49224_) {
         super(p_49224_);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Nullable

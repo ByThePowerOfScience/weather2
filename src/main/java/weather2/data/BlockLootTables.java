@@ -1,9 +1,10 @@
 package weather2.data;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 import weather2.Weather;
 import weather2.WeatherBlocks;
 
@@ -12,8 +13,8 @@ import java.util.stream.Collectors;
 
 public class BlockLootTables extends BlockLootSubProvider {
 
-	public BlockLootTables() {
-		super(Set.of(), FeatureFlags.REGISTRY.allFlags());
+	public BlockLootTables(HolderLookup.Provider registries) {
+		super(Set.of(), FeatureFlags.REGISTRY.allFlags(), registries);
 	}
 
 	@Override
@@ -30,6 +31,6 @@ public class BlockLootTables extends BlockLootSubProvider {
 
 	@Override
 	protected Iterable<Block> getKnownBlocks() {
-		return ForgeRegistries.BLOCKS.getValues().stream().filter(block -> ForgeRegistries.BLOCKS.getKey(block).getNamespace().equals(Weather.MODID)).collect(Collectors.toList());
+		return BuiltInRegistries.BLOCK.stream().filter(block -> BuiltInRegistries.BLOCK.getKey(block).getNamespace().equals(Weather.MODID)).collect(Collectors.toList());
 	}
 }

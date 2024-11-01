@@ -2,57 +2,60 @@ package weather2;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 
-import java.util.function.Supplier;
+public record PacketNBTFromServer(CompoundTag nbt) implements PacketBase
+{
+    public static final CustomPacketPayload.Type<PacketNBTFromServer> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Weather.MODID, "nbt_client"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketNBTFromServer> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.COMPOUND_TAG, PacketNBTFromServer::nbt,
+            PacketNBTFromServer::new);
 
-public class PacketNBTFromServer {
-    private final CompoundTag nbt;
-
-    public PacketNBTFromServer(CompoundTag nbt) {
-        this.nbt = nbt;
+    public PacketNBTFromServer(FriendlyByteBuf buf)
+    {
+        this(buf.readNbt());
     }
 
-    public static void encode(PacketNBTFromServer msg, FriendlyByteBuf buffer) {
-        buffer.writeNbt(msg.nbt);
+    public void write(FriendlyByteBuf buf)
+    {
+        buf.writeNbt(nbt);
     }
 
-    public static PacketNBTFromServer decode(FriendlyByteBuf buffer) {
-        return new PacketNBTFromServer(buffer.readNbt());
-    }
+    public void handle(Player player)
+    {
 
-    public static class Handler {
-        public static void handle(final PacketNBTFromServer msg, Supplier<NetworkEvent.Context> ctx) {
-            /*ServerPlayerEntity playerEntity = ctx.get().getSender();
-            if( playerEntity == null ) {
-                ctx.get().setPacketHandled(true);
-                return;
-            }*/
+        try {
+            String packetCommand = nbt.getString("packetCommand");
+            String command = nbt.getString("command");
 
-            ctx.get().enqueueWork(() -> {
-                try {
-                    CompoundTag nbt = msg.nbt;
+            //System.out.println("Weather2 packet command from server: " + packetCommand);
+            if (packetCommand.equals("WeatherData")) {
+                ClientTickHandler.getClientWeather();
 
-                    String packetCommand = nbt.getString("packetCommand");
-                    String command = nbt.getString("command");
-
-                    //System.out.println("Weather2 packet command from server: " + packetCommand);
-                    if (packetCommand.equals("WeatherData")) {
-                        ClientTickHandler.getClientWeather();
-
-                        //this line still gets NPE's despite it checking if its null right before it, wtf
-                        ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
-                    } else if (packetCommand.equals("ClientConfigData")) {
-                        if (command.equals("syncUpdate")) {
-                            ClientTickHandler.clientConfigData.readNBT(nbt);
-                        }
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                //this line still gets NPE's despite it checking if its null right before it, wtf
+                ClientTickHandler.weatherManager.nbtSyncFromServer(nbt);
+            } else if (packetCommand.equals("ClientConfigData")) {
+                if (command.equals("syncUpdate")) {
+                    ClientTickHandler.clientConfigData.readNBT(nbt);
                 }
-            });
-
-            ctx.get().setPacketHandled(true);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+    }
+
+	/*@Override
+	public ResourceLocation id() {
+		return WatutMod.PACKET_ID_NBT_FROM_SERVER;
+	}*/
+
+    @Override
+    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

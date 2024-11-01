@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -89,6 +90,11 @@ public class LightningBoltWeather extends Entity {
 
    public float getDamage() {
       return this.damage;
+   }
+
+   @Override
+   protected void defineSynchedData(SynchedEntityData.Builder builder) {
+
    }
 
    public void tick() {

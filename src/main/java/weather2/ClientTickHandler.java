@@ -7,12 +7,12 @@ import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.network.NetworkDirection;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import weather2.client.SceneEnhancer;
 import weather2.config.ClientConfigData;
 import weather2.config.ConfigDebug;
@@ -20,7 +20,7 @@ import weather2.util.WeatherUtil;
 import weather2.util.WindReader;
 import weather2.weathersystem.WeatherManagerClient;
 
-@Mod.EventBusSubscriber(modid = Weather.MODID, value = Dist.CLIENT)
+@Mod(Weather.MODID)
 public class ClientTickHandler
 {
 	public static final ClientTickHandler INSTANCE = new ClientTickHandler();
@@ -44,7 +44,7 @@ public class ClientTickHandler
 
 	private static ParticleManagerExtended particleManagerExtended;
 
-	private ClientTickHandler() {
+	public ClientTickHandler() {
 		//this constructor gets called multiple times when created from proxy, this prevents multiple inits
 		if (sceneEnhancer == null) {
 			sceneEnhancer = new SceneEnhancer();
@@ -55,10 +55,8 @@ public class ClientTickHandler
 	}
 
 	@SubscribeEvent
-	public static void tick(TickEvent.ClientTickEvent event) {
-		if (event.phase == TickEvent.Phase.START) {
-			INSTANCE.onTickInGame();
-		}
+	public static void tick(ClientTickEvent.Pre event) {
+		INSTANCE.onTickInGame();
 	}
 
     public void onTickInGame()
@@ -163,7 +161,7 @@ public class ClientTickHandler
     	Minecraft mc = Minecraft.getInstance();
 
     	if (particleManagerExtended == null) {
-			particleManagerExtended = new ParticleManagerExtended(mc.level, mc.textureManager);
+			particleManagerExtended = new ParticleManagerExtended(mc.level, mc.getTextureManager());
 		} else {
 			particleManagerExtended.setLevel((ClientLevel) world);
 		}
@@ -173,10 +171,16 @@ public class ClientTickHandler
 		data.putString("command", "syncFull");
 		data.putString("packetCommand", "WeatherData");
 		//Weather.eventChannel.sendToServer(PacketHelper.getNBTPacket(data, Weather.eventChannelName));
-		WeatherNetworking.HANDLER.sendTo(new PacketNBTFromClient(data), mc.player.connection.getConnection(), NetworkDirection.PLAY_TO_SERVER);
+		//WeatherNetworking.HANDLER.sendTo(new PacketNBTFromClient(data), mc.player.connection.getConnection(), NetworkDirection.PLAY_TO_SERVER);
+		WeatherNetworkingv2.instance().clientSendToServer(data);
     }
 
 	public static ParticleManagerExtended particleManagerExtended() {
 		return particleManagerExtended;
+	}
+
+	public static Player getPlayer()
+	{
+		return Minecraft.getInstance().player;
 	}
 }

@@ -23,8 +23,9 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.util.thread.EffectiveSide;
 
 import java.util.HashMap;
 
@@ -264,7 +265,7 @@ public class WeatherUtilEntity {
 	}
 
 	public static boolean checkVecOutside(Level parWorld, Vec3 parPos, Vec3 parCheckPos) {
-		BlockHitResult blockhitresult = parWorld.clip(new ClipContext(parPos, parCheckPos, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, null));
+		BlockHitResult blockhitresult = parWorld.clip(new ClipContext(parPos, parCheckPos, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, CollisionContext.empty()));
 		if (blockhitresult.getType() == HitResult.Type.MISS) {
 			int height = WeatherUtilBlock.getPrecipitationHeightSafe(parWorld, new BlockPos(Mth.floor(parCheckPos.x), 0, Mth.floor(parCheckPos.z))).getY();
 			//System.out.println("height: " + height + " vs " + parCheckPos.y);
@@ -288,7 +289,7 @@ public class WeatherUtilEntity {
 		if (vec31.distanceTo(vec3) > 128.0D) {
 			return false;
 		} else {
-			return level.clip(new ClipContext(vec3, vec31, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null)).getType() == HitResult.Type.MISS;
+			return level.clip(new ClipContext(vec3, vec31, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, CollisionContext.empty())).getType() == HitResult.Type.MISS;
 		}
 	}
 }

@@ -31,11 +31,10 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.util.thread.EffectiveSide;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.util.thread.EffectiveSide;
 import weather2.EntityRegistry;
 import weather2.ServerTickHandler;
 import weather2.Weather;
@@ -248,7 +247,7 @@ public class StormObject extends WeatherObject {
 	public void initFirstTime() {
 		super.initFirstTime();
 
-		Biome bgb = manager.getWorld().getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).get();
+		Biome bgb = manager.getWorld().getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(manager.getWorld(), new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z)))).value();
 
 		float temp = 1;
 		
@@ -1173,12 +1172,12 @@ public class StormObject extends WeatherObject {
 			Holder<Biome> bgb = world.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(world, new BlockPos(Mth.floor(pos.x), 0, Mth.floor(pos.z))));
 
 			//temperature scan
-			if (bgb.get() != null) {
+			if (bgb.value() != null) {
 
 				isInOcean = bgb.unwrap().left().toString().toLowerCase().contains("ocean");
 				
 				//float biomeTempAdj = getTemperatureMCToWeatherSys(bgb.getFloatTemperature(new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
-				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb.get(), new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
+				float biomeTempAdj = getTemperatureMCToWeatherSys(CoroUtilCompatibility.getAdjustedTemperature(manager.getWorld(), bgb.value(), new BlockPos(Mth.floor(pos.x), Mth.floor(pos.y), Mth.floor(pos.z))));
 				if (levelTemperature > biomeTempAdj) {
 					levelTemperature -= tempAdjustRate;
 				} else {
@@ -1216,7 +1215,7 @@ public class StormObject extends WeatherObject {
 					performBuildup = true;
 				}
 
-				if (bgb.get() != null) {
+				if (bgb.value() != null) {
 					String biomecat = bgb.unwrap().left().toString().toLowerCase();
 
 					if (!performBuildup && (isInOcean || biomecat.contains("swamp") || biomecat.contains("jungle") || biomecat.contains("river"))) {
@@ -2469,7 +2468,7 @@ public class StormObject extends WeatherObject {
 				Vec3 posFunnel = getFunnelCenter(posEnt);
 				double distXZ = entity.position().distanceTo(new Vec3(posFunnel.x, posEnt.y, posFunnel.z));
 				if (entHeightFromBase > 5 && entHeightFromBase < 70 && distXZ < (entHeightFromBase * 1.3)) {
-					entity.setSecondsOnFire(6);
+					entity.igniteForTicks(6);
 				}
 			}
 

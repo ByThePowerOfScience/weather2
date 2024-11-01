@@ -7,14 +7,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import weather2.WeatherBlocks;
 import weather2.config.ConfigWind;
-import weather2.energy.EnergyManager;
 import weather2.util.WeatherUtilEntity;
 import weather2.util.WindReader;
 import weather2.weathersystem.WeatherManager;
@@ -31,8 +27,9 @@ public class WindTurbineBlockEntity extends BlockEntity {
 	private boolean needsInit = true;
 
 	//private final EnergyManager energyManager;
-	private LazyOptional<EnergyManager> energy;
-	private EnergyManager energyManager;
+	//TODO: 1.21 capabilities
+	//private LazyOptional<EnergyManager> energy;
+	//private EnergyManager energyManager;
 
 	//amount generated at windspeed of 1, theoretical max windspeed is 2 when tornado right on top of it
 	private int maxNormalGenerated = ConfigWind.Wind_Turbine_FE_Generated_Per_Tick;
@@ -44,8 +41,9 @@ public class WindTurbineBlockEntity extends BlockEntity {
 	public WindTurbineBlockEntity(BlockPos p_155229_, BlockState p_155230_) {
 		super(WeatherBlocks.BLOCK_ENTITY_WIND_TURBINE.get(), p_155229_, p_155230_);
 
-		this.energyManager = new EnergyManager(maxTransfer, capacity);
-		this.energy = LazyOptional.of(() -> this.energyManager);
+		//TODO: 1.21 capabilities
+		//this.energyManager = new EnergyManager(maxTransfer, capacity);
+		//this.energy = LazyOptional.of(() -> this.energyManager);
 	}
 
 	@Override
@@ -75,7 +73,8 @@ public class WindTurbineBlockEntity extends BlockEntity {
 		}
 		if (!level.isClientSide) {
 			if (isOutsideCached) {
-				this.energyManager.addEnergy((int) (maxNormalGenerated * lastWindSpeed));
+				//TODO: 1.21 capabilities
+				//this.energyManager.addEnergy((int) (maxNormalGenerated * lastWindSpeed));
 				outputEnergy();
 			}
 		} else {
@@ -106,7 +105,7 @@ public class WindTurbineBlockEntity extends BlockEntity {
 
 	public void outputEnergy() {
 		//System.out.println(this.energyManager.getEnergyStored());
-		if (this.energyManager.getEnergyStored() >= this.energyManager.getMaxExtract() && this.energyManager.canExtract()) {
+		/*if (this.energyManager.getEnergyStored() >= this.energyManager.getMaxExtract() && this.energyManager.canExtract()) {
 			for (final var direction : Direction.values()) {
 				final BlockEntity be = this.level.getBlockEntity(this.worldPosition.relative(direction));
 				if (be == null) {
@@ -122,10 +121,10 @@ public class WindTurbineBlockEntity extends BlockEntity {
 					}
 				});
 			}
-		}
+		}*/
 	}
 
-	@Override
+	/*@Override
 	public void load(final CompoundTag tag) {
 		super.load(tag);
 	}
@@ -148,5 +147,10 @@ public class WindTurbineBlockEntity extends BlockEntity {
 	public void invalidateCaps() {
 		super.invalidateCaps();
 		this.energy.invalidate();
+	}*/
+
+	@Override
+	public void invalidateCapabilities() {
+		super.invalidateCapabilities();
 	}
 }

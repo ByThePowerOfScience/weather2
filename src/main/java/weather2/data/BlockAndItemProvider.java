@@ -1,23 +1,25 @@
 package weather2.data;
 
 import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.data.SpriteSourceProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.SpriteSourceProvider;
 import weather2.Weather;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class BlockAndItemProvider extends SpriteSourceProvider {
 
-	public BlockAndItemProvider(PackOutput output, ExistingFileHelper fileHelper)
+	public BlockAndItemProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper fileHelper)
 	{
-		super(output, fileHelper, Weather.MODID);
+		super(output, lookupProvider, Weather.MODID, fileHelper);
 	}
 
 	@Override
-	protected void addSources()
+	protected void gather()
 	{
 		addSpriteBlock("tornado_siren");
 		addSpriteBlock("tornado_siren_manual");
@@ -35,10 +37,10 @@ public class BlockAndItemProvider extends SpriteSourceProvider {
 	}
 
 	public void addSpriteBlock(String textureName) {
-		atlas(SpriteSourceProvider.BLOCKS_ATLAS).addSource(new SingleFile(new ResourceLocation(Weather.MODID + ":blocks/" + textureName), Optional.empty()));
+		atlas(SpriteSourceProvider.BLOCKS_ATLAS).addSource(new SingleFile(ResourceLocation.parse(Weather.MODID + ":blocks/" + textureName), Optional.empty()));
 	}
 
 	public void addSpriteItem(String textureName) {
-		atlas(SpriteSourceProvider.BLOCKS_ATLAS).addSource(new SingleFile(new ResourceLocation(Weather.MODID + ":items/" + textureName), Optional.empty()));
+		atlas(SpriteSourceProvider.BLOCKS_ATLAS).addSource(new SingleFile(ResourceLocation.parse(Weather.MODID + ":items/" + textureName), Optional.empty()));
 	}
 }

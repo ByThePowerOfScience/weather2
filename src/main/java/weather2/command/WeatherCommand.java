@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.InterModComms;
 import weather2.ServerTickHandler;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigWind;

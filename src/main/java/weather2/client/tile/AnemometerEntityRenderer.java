@@ -50,11 +50,11 @@ public class AnemometerEntityRenderer<T extends BlockEntity> implements BlockEnt
     }
 
     private static ResourceLocation getResLoc(String path) {
-        return new ResourceLocation(Weather.MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(Weather.MODID, path);
     }
 
     public static void renderModel(final Material material, final Model model, PoseStack stack, MultiBufferSource buffer, int combinedLightIn, int combinedOverlayIn) {
-        model.renderToBuffer(stack, buffer.getBuffer(model.renderType(material.texture())), combinedLightIn, combinedOverlayIn, 1, 1, 1, 1);
+        model.renderToBuffer(stack, buffer.getBuffer(model.renderType(material.texture())), combinedLightIn, combinedOverlayIn, 1);
     }
 
     private final Block block;

@@ -2,68 +2,63 @@ package weather2;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
 
-import java.util.function.Supplier;
+public record PacketNBTFromClient(CompoundTag nbt) implements PacketBase
+{
+    public static final CustomPacketPayload.Type<PacketNBTFromClient> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(Weather.MODID, "nbt_server"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PacketNBTFromClient> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.COMPOUND_TAG, PacketNBTFromClient::nbt,
+            PacketNBTFromClient::new);
 
-public class PacketNBTFromClient {
-    private final CompoundTag nbt;
-
-    public PacketNBTFromClient(CompoundTag nbt) {
-        this.nbt = nbt;
+    public PacketNBTFromClient(RegistryFriendlyByteBuf buf)
+    {
+        this(buf.readNbt());
     }
 
-    public static void encode(PacketNBTFromClient msg, FriendlyByteBuf buffer) {
-        buffer.writeNbt(msg.nbt);
+
+    public void write(FriendlyByteBuf buf)
+    {
+        buf.writeNbt(nbt);
     }
 
-    public static PacketNBTFromClient decode(FriendlyByteBuf buffer) {
-        return new PacketNBTFromClient(buffer.readNbt());
-    }
 
-    public static class Handler {
-        public static void handle(final PacketNBTFromClient msg, Supplier<NetworkEvent.Context> ctx) {
-            ServerPlayer playerEntity = ctx.get().getSender();
-            if( playerEntity == null ) {
-                ctx.get().setPacketHandled(true);
-                return;
-            }
+    public void handle(Player player)
+    {
+        try {
+            if (player instanceof ServerPlayer) {
 
-            ctx.get().enqueueWork(() -> {
-                try {
-                    CompoundTag nbt = msg.nbt;
+                String packetCommand = nbt.getString("packetCommand");
+                String command = nbt.getString("command");
 
-                    String packetCommand = nbt.getString("packetCommand");
-                    String command = nbt.getString("command");
+                Weather.dbg("Weather2 packet command from client: " + packetCommand + " - " + command);
 
-                    Weather.dbg("Weather2 packet command from client: " + packetCommand + " - " + command);
+                if (packetCommand.equals("WeatherData")) {
 
-                    if (packetCommand.equals("WeatherData")) {
-
-                        if (command.equals("syncFull")) {
-                            ServerTickHandler.playerClientRequestsFullSync(playerEntity);
-                        }
-
+                    if (command.equals("syncFull")) {
+                        ServerTickHandler.playerClientRequestsFullSync((ServerPlayer) player);
                     }
 
-                } catch (Exception ex) {
-                    ex.printStackTrace();
                 }
-                /*ItemStack heldItem = GadgetCopyPaste.getGadget(playerEntity);
-                if (heldItem.isEmpty()) return;
-
-                BlockPos startPos = msg.start;
-                BlockPos endPos = msg.end;
-                if (startPos.equals(BlockPos.ZERO) && endPos.equals(BlockPos.ZERO)) {
-                    GadgetCopyPaste.setSelectedRegion(heldItem, null);
-                    playerEntity.sendStatusMessage(MessageTranslation.AREA_RESET.componentTranslation().setStyle(Styles.AQUA), true);
-                } else {
-                    GadgetCopyPaste.setSelectedRegion(heldItem, new Region(startPos, endPos));
-                }*/
-            });
-
-            ctx.get().setPacketHandled(true);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
+    }
+
+	/*@Override
+	public ResourceLocation id() {
+		return WatutMod.PACKET_ID_NBT_FROM_SERVER;
+	}*/
+
+    @Override
+    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

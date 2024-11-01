@@ -6,8 +6,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
 import weather2.ServerTickHandler;
 import weather2.WeatherBlocks;
@@ -47,15 +47,5 @@ public class SensorBlockEntity extends BlockEntity {
 		if (blockState.getBlock() instanceof SensorBlock) {
 			((SensorBlock) blockState.getBlock()).setPoweredState(this.getBlockState(), level, this.getBlockPos(), state);
 		}
-	}
-
-	@Override
-	public void load(final CompoundTag tag) {
-		super.load(tag);
-	}
-
-	@Override
-	protected void saveAdditional(final CompoundTag tag) {
-		super.saveAdditional(tag);
 	}
 }

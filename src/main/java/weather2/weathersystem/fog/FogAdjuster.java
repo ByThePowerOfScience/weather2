@@ -2,7 +2,7 @@ package weather2.weathersystem.fog;
 
 import com.corosus.coroutil.util.CULog;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import org.joml.Vector3f;
 import weather2.datatypes.WeatherEventType;
 import net.minecraft.client.Minecraft;

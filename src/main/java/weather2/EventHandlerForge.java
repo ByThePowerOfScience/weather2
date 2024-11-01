@@ -10,17 +10,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import weather2.client.SceneEnhancer;
 import weather2.command.CommandWeather2Client;
 import weather2.config.ConfigDebug;
@@ -29,7 +28,7 @@ import weather2.util.WeatherUtilEntity;
 import weather2.weathersystem.WeatherManagerClient;
 import weather2.weathersystem.wind.WindManager;
 
-@Mod.EventBusSubscriber(modid = Weather.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod(Weather.MODID)
 public class EventHandlerForge {
 
 	@SubscribeEvent
@@ -40,7 +39,7 @@ public class EventHandlerForge {
 			ClientTickHandler.getClientWeather();
 		} else if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
 			if (ConfigDebug.Particle_engine_render) {
-				ClientTickHandler.particleManagerExtended().render(event.getPoseStack(), null, Minecraft.getInstance().gameRenderer.lightTexture(), event.getCamera(), event.getPartialTick(), event.getFrustum());
+				ClientTickHandler.particleManagerExtended().render(event.getPoseStack(), null, Minecraft.getInstance().gameRenderer.lightTexture(), event.getCamera(), event.getPartialTick().getGameTimeDeltaTicks(), event.getFrustum());
 			}
 		}
     }
@@ -60,12 +59,14 @@ public class EventHandlerForge {
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public void onRenderTick(TickEvent.RenderTickEvent event) {
+	public void renderTick(RenderLevelStageEvent event) {
+		//TODO: 1.21 verify this is good enough instead of RenderTickEvent via forge
+		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
 		SceneEnhancer.renderTick(event);
 	}
 
 	@SubscribeEvent
-	public void onEntityLivingUpdate(LivingEvent.LivingTickEvent event) {
+	public void onEntityLivingUpdate(EntityTickEvent.Pre event) {
 		Entity ent = event.getEntity();
 		if (ent.level().isClientSide && (ent instanceof Player && ((Player) ent).isLocalPlayer())) {
 			onClientPlayerUpdate(event);
@@ -83,11 +84,11 @@ public class EventHandlerForge {
 		tag2.putLong("lastStormDeadlyTime", tag.getLong("lastStormDeadlyTime"));
 	}
 
-	public void onServerPlayerUpdate(LivingEvent.LivingTickEvent event) {
+	public void onServerPlayerUpdate(EntityTickEvent.Pre event) {
 		Level level = event.getEntity().level();
 		if (level.getGameTime() % 40 == 0) {
 			Entity ent = event.getEntity();
-			Biome bgb = level.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(level, new BlockPos(Mth.floor(ent.position().x), 0, Mth.floor(ent.position().z)))).get();
+			Biome bgb = level.getBiome(WeatherUtilBlock.getPrecipitationHeightSafe(level, new BlockPos(Mth.floor(ent.position().x), 0, Mth.floor(ent.position().z)))).value();
 			float biomeTemp = CoroUtilCompatibility.getAdjustedTemperature(ent.level(), bgb, new BlockPos(Mth.floor(ent.position().x), Mth.floor(ent.position().y), Mth.floor(ent.position().z)));
 			CULog.dbg("biomeTemp: " + biomeTemp);
 		}
@@ -96,7 +97,7 @@ public class EventHandlerForge {
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public void onClientPlayerUpdate(LivingEvent.LivingTickEvent event) {
+	public void onClientPlayerUpdate(EntityTickEvent.Pre event) {
 
 		Entity ent = event.getEntity();
 		WeatherManagerClient weatherMan = ClientTickHandler.weatherManager;

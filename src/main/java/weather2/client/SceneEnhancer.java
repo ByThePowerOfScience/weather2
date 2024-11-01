@@ -10,6 +10,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.MapColor;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import weather2.config.ConfigMisc;
 import weather2.config.ConfigSound;
 import weather2.datatypes.PrecipitationType;
@@ -38,9 +39,8 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.TickEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import weather2.*;
 import weather2.client.entity.particle.ParticleHail;
 import weather2.client.entity.particle.ParticleSandstorm;
@@ -79,8 +79,8 @@ public class SceneEnhancer implements Runnable {
 
 	private static final List<BlockPos> listPosRandom = new ArrayList<>();
 
-	public static final ResourceLocation RAIN_TEXTURES_GREEN = new ResourceLocation(Weather.MODID, "textures/environment/rain_green.png");
-	public static final ResourceLocation RAIN_TEXTURES = new ResourceLocation("textures/environment/rain.png");
+	public static final ResourceLocation RAIN_TEXTURES_GREEN = ResourceLocation.fromNamespaceAndPath(Weather.MODID, "textures/environment/rain_green.png");
+	public static final ResourceLocation RAIN_TEXTURES = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/environment/rain.png");
 
 	public static boolean FORCE_ON_DEBUG_TESTING = false;
 
@@ -307,7 +307,7 @@ public class SceneEnhancer implements Runnable {
 		Player player = Minecraft.getInstance().player;
 
 		float precipitationStrength = ClientWeatherHelper.get().getPrecipitationStrength(player);
-		if (!(precipitationStrength <= 0.0F) && !shouldSnowHere(player.level(), player.level().getBiome(player.blockPosition()).get(), player.blockPosition())) {
+		if (!(precipitationStrength <= 0.0F) && !shouldSnowHere(player.level(), player.level().getBiome(player.blockPosition()).value(), player.blockPosition())) {
 			Random random = new Random(player.level().getGameTime() * 312987231L);
 			LevelReader levelreader = minecraft.level;
 			BlockPos blockpos = player.blockPosition();
@@ -318,7 +318,7 @@ public class SceneEnhancer implements Runnable {
 				int k = random.nextInt(21) - 10;
 				int l = random.nextInt(21) - 10;
 				BlockPos blockpos2 = levelreader.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, blockpos.offset(k, 0, l));
-				Biome biome = levelreader.getBiome(blockpos2).get();
+				Biome biome = levelreader.getBiome(blockpos2).value();
 				if (blockpos2.getY() > levelreader.getMinBuildHeight() && blockpos2.getY() <= blockpos.getY() + 10 && blockpos2.getY() >= blockpos.getY() - 10 && biome.getPrecipitationAt(blockpos2) == Biome.Precipitation.RAIN && biome.warmEnoughToRain(blockpos2)) {
 					blockpos1 = blockpos2.below();
 					if (minecraft.options.particles.get() == ParticleStatus.MINIMAL) {
@@ -498,7 +498,7 @@ public class SceneEnhancer implements Runnable {
 
 
 		BlockPos posPlayer = CoroUtilBlock.blockPos(entP.getX(), entP.getY(), entP.getZ());
-		Biome biome = entP.level().getBiome(posPlayer).get();
+		Biome biome = entP.level().getBiome(posPlayer).value();
 		lastBiomeIn = biome;
 
 		Level world = entP.level();
@@ -1467,7 +1467,9 @@ public class SceneEnhancer implements Runnable {
 		return fogAdjuster.isFogOverriding();
     }
 
-    public static void renderTick(TickEvent.RenderTickEvent event) {
+    public static void renderTick(RenderLevelStageEvent event) {
+		//TODO: 1.21 verify this is good enough instead of RenderTickEvent via forge
+		if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
 		Minecraft client = Minecraft.getInstance();
 		ClientWeatherProxy weather = ClientWeatherProxy.get();
 		if (client.level != null) {

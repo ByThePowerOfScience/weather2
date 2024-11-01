@@ -19,8 +19,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import weather2.ClientTickHandler;
 import weather2.ClientWeatherProxy;
 import weather2.client.SceneEnhancer;
@@ -301,7 +301,7 @@ public class ParticleBehaviors {
 		particle.setMotionX((rand.nextFloat() - 0.5F) * 0.01F);
 		particle.setMotionZ((rand.nextFloat() - 0.5F) * 0.01F);
 		Player entP = Minecraft.getInstance().player;
-		Biome biome = entP.level().getBiome(CoroUtilBlock.blockPos(entP.getX(), entP.getY(), entP.getZ())).get();
+		Biome biome = entP.level().getBiome(CoroUtilBlock.blockPos(entP.getX(), entP.getY(), entP.getZ())).value();
 		if (ClientWeatherProxy.get().getPrecipitationType(biome) == PrecipitationType.ACID) {
 			particle.rCol = acidRainRed;
 			particle.gCol = acidRainGreen;

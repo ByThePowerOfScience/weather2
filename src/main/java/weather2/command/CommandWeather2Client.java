@@ -15,7 +15,6 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import weather2.ClientTickHandler;
 import weather2.config.ConfigDebug;
 import weather2.config.ConfigParticle;

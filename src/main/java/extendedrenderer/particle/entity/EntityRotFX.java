@@ -22,8 +22,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import weather2.ClientTickHandler;
@@ -41,6 +42,12 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
     public static final ParticleRenderType SORTED_TRANSLUCENT = new ParticleRenderType() {
 
         @Override
+        public @Nullable BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
+            RenderSystem.disableCull();
+            return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.begin(tesselator, textureManager);
+        }
+
+        /*@Override
         public void begin(BufferBuilder p_217600_1_, TextureManager p_217600_2_) {
             RenderSystem.disableCull();
             ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.begin(p_217600_1_, p_217600_2_);
@@ -51,7 +58,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
             //TODO: not possible in 1.20 now i guess, cant remember why this line was important
             //p_217599_1_.getBuilder().setQuadSortOrigin(0, 0, 0);
             ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT.end(p_217599_1_);
-        }
+        }*/
 
         @Override
         public String toString() {
@@ -59,6 +66,15 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         }
     };
     public static final ParticleRenderType SORTED_OPAQUE_BLOCK = new ParticleRenderType() {
+
+        @Override
+        public @Nullable BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
+            RenderSystem.disableBlend();
+            RenderSystem.depthMask(true);
+            RenderSystem.setShader(GameRenderer::getParticleShader);
+            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+            return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+        }/*
 
         @Override
         public void begin(BufferBuilder p_217600_1_, TextureManager p_217600_2_) {
@@ -74,7 +90,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
             //TODO: not possible in 1.20 now i guess, cant remember why this line was important
             //p_217599_1_.getBuilder().setQuadSortOrigin(0, 0, 0);
             ParticleRenderType.PARTICLE_SHEET_OPAQUE.end(p_217599_1_);
-        }
+        }*/
 
         @Override
         public String toString() {
@@ -458,6 +474,7 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         weatherEffect = true;
         if (ConfigParticle.Particle_engine_weather2) {
             ClientTickHandler.particleManagerExtended().add(this);
+            //Minecraft.getInstance().particleEngine.add(this);
         } else {
             Minecraft.getInstance().particleEngine.add(this);
         }
@@ -678,10 +695,10 @@ public class EntityRotFX extends TextureSheetParticle implements IWindHandler
         } else {
             j = lastNonZeroBrightness;
         }
-        buffer.vertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-        buffer.vertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-        buffer.vertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-        buffer.vertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+        buffer.addVertex(avector3f[0].x(), avector3f[0].y(), avector3f[0].z()).setUv(f8, f6).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
+        buffer.addVertex(avector3f[1].x(), avector3f[1].y(), avector3f[1].z()).setUv(f8, f5).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
+        buffer.addVertex(avector3f[2].x(), avector3f[2].y(), avector3f[2].z()).setUv(f7, f5).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
+        buffer.addVertex(avector3f[3].x(), avector3f[3].y(), avector3f[3].z()).setUv(f7, f6).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
 
     }
 

@@ -1,18 +1,27 @@
 package weather2;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import weather2.weathersystem.storm.LightningBoltWeatherNew;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod(Weather.MODID)
 public class EntityRegistry {
 
     /*@ObjectHolder(Weather.MODID + ":lightning_bolt")
     public static EntityType<LightningBoltWeatherNew> lightning_bolt;*/
 
-    public static final RegistryObject<EntityType<LightningBoltWeatherNew>> LIGHTNING_BOLT = Weather.R.entity("lightning_bolt", () -> EntityType.Builder
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, Weather.MODID);
+
+    public static void init(ModContainer container) {
+        ENTITY_TYPES.register(container.getEventBus());
+    }
+
+    public static final DeferredHolder<EntityType<?>, EntityType<LightningBoltWeatherNew>> LIGHTNING_BOLT = ENTITY_TYPES.register("lightning_bolt", () -> EntityType.Builder
             .<LightningBoltWeatherNew>of(LightningBoltWeatherNew::new, MobCategory.MISC)
             .noSave()
             .sized(0.0F, 0.0F)

@@ -2,9 +2,7 @@ package extendedrenderer;
 
 import com.google.common.collect.*;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.logging.LogUtils;
 import extendedrenderer.particle.entity.EntityRotFX;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -43,8 +41,10 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.ClientHooks;
+import org.joml.Matrix4fStack;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -59,11 +59,11 @@ import java.util.stream.Collectors;
 public class ParticleManagerExtended implements PreparableReloadListener {
    private static final Logger LOGGER = LogUtils.getLogger();
    private static final FileToIdConverter PARTICLE_LISTER = FileToIdConverter.json("particles");
-   private static final ResourceLocation PARTICLES_ATLAS_INFO = new ResourceLocation("particles");
+   private static final ResourceLocation PARTICLES_ATLAS_INFO = ResourceLocation.withDefaultNamespace("particles");
    private static final int MAX_PARTICLES_PER_LAYER = 16384;
    private static final List<ParticleRenderType> RENDER_ORDER = ImmutableList.of(ParticleRenderType.TERRAIN_SHEET, ParticleRenderType.PARTICLE_SHEET_OPAQUE, ParticleRenderType.PARTICLE_SHEET_LIT, ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT, ParticleRenderType.CUSTOM, ParticleRenderType.CUSTOM, EntityRotFX.SORTED_OPAQUE_BLOCK, EntityRotFX.SORTED_TRANSLUCENT);
    protected ClientLevel level;
-   private final Map<ParticleRenderType, Queue<Particle>> particles = Maps.newTreeMap(net.minecraftforge.client.ForgeHooksClient.makeParticleRenderTypeComparator(RENDER_ORDER));
+   public final Map<ParticleRenderType, Queue<Particle>> particles = Maps.newTreeMap(net.neoforged.neoforge.client.ClientHooks.makeParticleRenderTypeComparator(RENDER_ORDER));
    private final Queue<TrackingEmitter> trackingEmitters = Queues.newArrayDeque();
    private final TextureManager textureManager;
    private final RandomSource random = RandomSource.create();
@@ -260,9 +260,16 @@ public class ParticleManagerExtended implements PreparableReloadListener {
       RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE2);
       RenderSystem.activeTexture(org.lwjgl.opengl.GL13.GL_TEXTURE0);
 
-      PoseStack posestack = RenderSystem.getModelViewStack();
-      posestack.pushPose();
-      posestack.mulPoseMatrix(p_107337_.last().pose());
+      //the hell is this doing???
+      //pushes new pose, multiplies it against the last one, and then applies it, then later pops it and applies
+      //wish i documented why i did this
+      //TODO: 1.21 figure out the purpose of this
+      //PoseStack posestack = RenderSystem.getModelViewStack();
+      Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+      //posestack.pushPose();
+      matrix4fStack.pushMatrix();
+      //posestack.mulPoseMatrix(p_107337_.last().pose());
+      matrix4fStack.mul(p_107337_.last().pose());
       RenderSystem.applyModelViewMatrix();
 
       RenderSystem.disableCull();
@@ -275,16 +282,16 @@ public class ParticleManagerExtended implements PreparableReloadListener {
          if (iterable != null) {
             RenderSystem.setShader(GameRenderer::getParticleShader);
             Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder bufferbuilder = tesselator.getBuilder();
-            particlerendertype.begin(bufferbuilder, this.textureManager);
+            BufferBuilder bufferbuilder = particlerendertype.begin(tesselator, this.textureManager);
+
 
             for(Particle particle : iterable) {
 
                if (particle instanceof EntityRotFX) {
-                  if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(((EntityRotFX)particle).getBoundingBoxForRender(p_107341_)))
+                  if (clippingHelper != null && /*particle.shouldCull() && */!clippingHelper.isVisible(((EntityRotFX)particle).getBoundingBoxForRender(p_107341_)))
                      continue;
                } else {
-                  if (clippingHelper != null && particle.shouldCull() && !clippingHelper.isVisible(particle.getBoundingBox()))
+                  if (clippingHelper != null && /*particle.shouldCull() && */!clippingHelper.isVisible(particle.getBoundingBox()))
                      continue;
                }
 
@@ -299,13 +306,21 @@ public class ParticleManagerExtended implements PreparableReloadListener {
                }
             }
 
-            particlerendertype.end(tesselator);
+            //particlerendertype.end(tesselator);
+            MeshData meshdata = bufferbuilder.build();
+            if (meshdata != null) {
+               BufferUploader.drawWithShader(meshdata);
+            }
          }
          this.level.getProfiler().pop();
       }
 
-      posestack.popPose();
+      //TODO: 1.21 figure out the purpose of this
+      /*posestack.popPose();
+      RenderSystem.applyModelViewMatrix();*/
+      matrix4fStack.popMatrix();
       RenderSystem.applyModelViewMatrix();
+
       RenderSystem.depthMask(true);
       RenderSystem.disableBlend();
       p_107339_.turnOffLightLayer();

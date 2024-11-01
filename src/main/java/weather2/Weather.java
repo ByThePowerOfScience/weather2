@@ -4,7 +4,6 @@ import com.corosus.coroutil.util.CULog;
 import com.corosus.modconfig.ConfigMod;
 import com.corosus.modconfig.IConfigCategory;
 import com.mojang.brigadier.CommandDispatcher;
-import extendedrenderer.ParticleRegistry2ElectricBubbleoo;
 import extendedrenderer.particle.ParticleRegistry;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
@@ -15,26 +14,28 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import weather2.command.WeatherCommand;
@@ -57,8 +58,6 @@ public class Weather
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public static final DeferredHelper R = DeferredHelper.create(Weather.MODID);
-
     public static final String MODID = "weather2";
 
     public static boolean initProperNeededForWorld = true;
@@ -69,7 +68,7 @@ public class Weather
     //public static final CreativeModeTab CREATIVE_TAB = new WeatherTab();
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
-    public static final RegistryObject<CreativeModeTab> WEATHER_TAB = CREATIVE_MODE_TABS.register("weather_tab", () -> CreativeModeTab.builder()
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> WEATHER_TAB = CREATIVE_MODE_TABS.register("weather_tab", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .title(Component.translatable("itemGroup.weather2"))
             .icon(() -> WeatherItems.WEATHER_ITEM.get().getDefaultInstance())
@@ -85,27 +84,35 @@ public class Weather
                 output.accept(WeatherItems.BLOCK_WIND_TURBINE_ITEM.get());
             }).build());
 
-    public Weather() {
+    public Weather(ModContainer modContainer) {
 
-        ParticleRegistry2ElectricBubbleoo.bootstrap();
+        //TODO: 1.21 might not need
+        //ParticleRegistry2ElectricBubbleoo.bootstrap();
 
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        new WeatherNetworkingv2();
+
+        //load class so it registers
+        EntityRegistry.init(modContainer);
+
+        IEventBus modBus = modContainer.getEventBus();
         modBus.addListener(this::setup);
-        MinecraftForge.EVENT_BUS.addListener(this::serverStop);
-        MinecraftForge.EVENT_BUS.addListener(this::serverStart);
+        NeoForge.EVENT_BUS.addListener(this::serverStop);
+        NeoForge.EVENT_BUS.addListener(this::serverStart);
+        NeoForge.EVENT_BUS.register(ServerTickHandler.class);
         CREATIVE_MODE_TABS.register(modBus);
         modBus.addListener(this::clientSetup);
         modBus.addListener(this::gatherData);
         modBus.addListener(this::processIMC);
         modBus.addListener(this::addCreative);
 
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
         WeatherBlocks.registerHandlers(modBus);
         WeatherItems.registerHandlers(modBus);
 
-        MinecraftForge.EVENT_BUS.register(new EventHandlerForge());
-        MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
-        MinecraftForge.EVENT_BUS.register(new WeatherBlocks());
+        NeoForge.EVENT_BUS.register(new EventHandlerForge());
+        NeoForge.EVENT_BUS.addListener(this::registerCommands);
+        //NeoForge.EVENT_BUS.register(new WeatherBlocks());
+        modContainer.getEventBus().addListener(this::registerPackets);
 
         new File("./config/Weather2").mkdirs();
         configMisc = new ConfigMisc();
@@ -125,14 +132,22 @@ public class Weather
 
         if (FMLEnvironment.dist.isClient()) {
             modBus.addListener(ParticleRegistry::getRegisteredParticles);
+            modBus.addListener(ClientRegistry::clientSetup);
+            modBus.addListener(ClientRegistry::registerRenderers);
             modBus.addListener(ClientRegistry::registerLayerDefinitions);
+            NeoForge.EVENT_BUS.addListener(ClientTickHandler::tick);
         }
+    }
+
+    public void registerPackets(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar("1.0.0");
+        WeatherNetworkingv2.register(registrar);
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS)
-            event.accept(WeatherItems.WEATHER_ITEM);
+            event.accept(WeatherItems.WEATHER_ITEM.get());
     }
 
     public static IConfigCategory addConfig(IConfigCategory config) {
@@ -141,7 +156,7 @@ public class Weather
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        WeatherNetworking.register();
+        //WeatherNetworkingOld.register();
     }
 
     private void clientSetup(FMLClientSetupEvent event) {
@@ -191,9 +206,9 @@ public class Weather
     private void gatherData(GatherDataEvent event) {
         DataGenerator gen = event.getGenerator();
         if (event.includeServer()) {
-            gen.addProvider(event.includeServer(), new WeatherRecipeProvider(gen.getPackOutput()));
+            gen.addProvider(event.includeServer(), new WeatherRecipeProvider(gen.getPackOutput(), event.getLookupProvider()));
             gen.addProvider(event.includeServer(), new LootTableProvider(gen.getPackOutput(), Collections.emptySet(),
-                    List.of(new LootTableProvider.SubProviderEntry(BlockLootTables::new, LootContextParamSets.BLOCK))));
+                    List.of(new LootTableProvider.SubProviderEntry(BlockLootTables::new, LootContextParamSets.BLOCK)), event.getLookupProvider()));
         }
         if (event.includeClient()) {
             gatherClientData(event);
@@ -211,7 +226,7 @@ public class Weather
         DataGenerator gen = event.getGenerator();
         PackOutput packOutput = gen.getPackOutput();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-        gen.addProvider(event.includeClient(), new ParticleRegistry(packOutput, existingFileHelper));
-        gen.addProvider(event.includeClient(), new BlockAndItemProvider(packOutput, existingFileHelper));
+        gen.addProvider(event.includeClient(), new ParticleRegistry(packOutput, event.getLookupProvider(), existingFileHelper));
+        gen.addProvider(event.includeClient(), new BlockAndItemProvider(packOutput, event.getLookupProvider(), existingFileHelper));
     }
 }

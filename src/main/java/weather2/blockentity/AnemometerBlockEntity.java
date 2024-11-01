@@ -63,14 +63,4 @@ public class AnemometerBlockEntity extends BlockEntity {
 			if (smoothAngleRotationalVel <= 0) smoothAngleRotationalVel = 0;
 		}
 	}
-
-	@Override
-	public void load(final CompoundTag tag) {
-		super.load(tag);
-	}
-
-	@Override
-	protected void saveAdditional(final CompoundTag tag) {
-		super.saveAdditional(tag);
-	}
 }

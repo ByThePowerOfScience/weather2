@@ -1,5 +1,6 @@
 package weather2.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -18,8 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import weather2.WeatherBlocks;
 import weather2.blockentity.WindTurbineBlockEntity;
@@ -29,12 +30,19 @@ import java.util.List;
 
 public class WindTurbineBlock extends BaseEntityBlock {
 
+	public static final MapCodec<WindTurbineBlock> CODEC = simpleCodec(WindTurbineBlock::new);
+
 	public static final VoxelShape SHAPE = box(2.0, 0.0, 2.0, 14.0, 32.0, 14.0);
 
     public static final void register() {}
 
 	public WindTurbineBlock(Properties properties) {
 		super(properties);
+	}
+
+	@Override
+	protected MapCodec<? extends BaseEntityBlock> codec() {
+		return CODEC;
 	}
 
 	@Override
@@ -50,13 +58,6 @@ public class WindTurbineBlock extends BaseEntityBlock {
 	@Override
 	public RenderShape getRenderShape(BlockState p_49232_) {
 		return RenderShape.INVISIBLE;
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(ItemStack stack, BlockGetter worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-		super.appendHoverText(stack, worldIn, tooltip, flagIn);
-		//tooltip.add(Component.translatable(this.getDescriptionId() + ".desc").withStyle(ChatFormatting.GRAY));
 	}
 
 	@Nullable

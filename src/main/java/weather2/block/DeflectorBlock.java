@@ -1,8 +1,10 @@
 package weather2.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BellBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -15,8 +17,15 @@ import weather2.blockentity.DeflectorBlockEntity;
 
 public class DeflectorBlock extends BaseEntityBlock {
 
+    public static final MapCodec<DeflectorBlock> CODEC = simpleCodec(DeflectorBlock::new);
+
     public DeflectorBlock(Properties p_49224_) {
         super(p_49224_);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Nullable

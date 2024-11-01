@@ -1,5 +1,6 @@
 package weather2.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -15,8 +16,15 @@ import weather2.blockentity.WeatherMachineBlockEntity;
 
 public class WeatherMachineBlock extends BaseEntityBlock {
 
+    public static final MapCodec<WeatherMachineBlock> CODEC = simpleCodec(WeatherMachineBlock::new);
+
     public WeatherMachineBlock(Properties p_49224_) {
         super(p_49224_);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Nullable

@@ -1,16 +1,20 @@
 package weather2.weathersystem.storm;
 
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import com.corosus.coroutil.util.CoroUtilBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import weather2.WeatherBlocks;
 import weather2.config.ConfigSand;
 import weather2.util.CachedNBTTagCompound;
@@ -41,9 +45,7 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 	}
 
 	public static boolean isDesert(Biome biome, boolean forSpawn) {
-		//TODO: make sure new comparison works
-		if (ForgeRegistries.BIOMES.getKey(biome) == null) return false;
-		return biome.equals(Biomes.DESERT) || (!forSpawn && biome.equals(Biomes.RIVER)) || ForgeRegistries.BIOMES.getKey(biome).toString().toLowerCase().contains("desert");
+		return false;
 	}
 
 	public int getSize() {
@@ -117,7 +119,7 @@ public class WeatherObjectSandstormOld extends WeatherObject {
 					//avoid unloaded areas
 					if (!world.hasChunkAt(blockPos)) continue;
 
-					Biome biomeIn = world.getBiome(blockPos).get();
+					Biome biomeIn = world.getBiome(blockPos).value();
 
 					if (ConfigSand.Sandstorm_Sand_Buildup_AllowOutsideDesert || isDesert(biomeIn)) {
 						WeatherUtilBlock.fillAgainstWallSmoothly(world, new Vec3(blockPos.getX(), blockPos.getY(), blockPos.getZ()), angle, 15, 2, WeatherBlocks.BLOCK_SAND_LAYER.get(), 3);

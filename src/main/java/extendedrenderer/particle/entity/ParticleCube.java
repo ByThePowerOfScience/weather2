@@ -177,10 +177,10 @@ public class ParticleCube extends ParticleTexFX {
 			j = lastNonZeroBrightness;
 		}
 		for (Vector3f[] entryFace : faces) {
-			buffer.vertex(entryFace[0].x(), entryFace[0].y(), entryFace[0].z()).uv(f8, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-			buffer.vertex(entryFace[1].x(), entryFace[1].y(), entryFace[1].z()).uv(f8, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-			buffer.vertex(entryFace[2].x(), entryFace[2].y(), entryFace[2].z()).uv(f7, f5).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
-			buffer.vertex(entryFace[3].x(), entryFace[3].y(), entryFace[3].z()).uv(f7, f6).color(this.rCol, this.gCol, this.bCol, this.alpha).uv2(j).endVertex();
+			buffer.addVertex(entryFace[0].x(), entryFace[0].y(), entryFace[0].z()).setUv(f8, f6).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
+			buffer.addVertex(entryFace[1].x(), entryFace[1].y(), entryFace[1].z()).setUv(f8, f5).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
+			buffer.addVertex(entryFace[2].x(), entryFace[2].y(), entryFace[2].z()).setUv(f7, f5).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
+			buffer.addVertex(entryFace[3].x(), entryFace[3].y(), entryFace[3].z()).setUv(f7, f6).setColor(this.rCol, this.gCol, this.bCol, this.alpha).setLight(j);
 		}
 
 	}
