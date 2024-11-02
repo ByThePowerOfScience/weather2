@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "O": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "V": {
+      "item": "weather2:wind_vane"
+    }
+  },
+  "pattern": [
+    "ODO",
+    "IVI",
+    "RGR"
+  ],
+  "result": {
+    "item": "weather2:wind_turbine"
+  },
+  "show_notification": true
+}

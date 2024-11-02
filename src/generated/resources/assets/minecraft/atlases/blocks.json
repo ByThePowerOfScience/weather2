@@ -1,0 +1,56 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/tornado_siren"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/tornado_siren_manual"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/tornado_siren_manual_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/tornado_sensor"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/weather_deflector"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/weather_forecast"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/weather_machine"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/anemometer"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/wind_vane"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:blocks/wind_turbine"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:items/weather_item"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:items/sand_layer"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "weather2:items/sand_layer_placeable"
+    }
+  ]
+}

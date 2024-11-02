@@ -39,7 +39,8 @@ public class EventHandlerForge {
 			ClientTickHandler.getClientWeather();
 		} else if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
 			if (ConfigDebug.Particle_engine_render) {
-				ClientTickHandler.particleManagerExtended().render(event.getPoseStack(), null, Minecraft.getInstance().gameRenderer.lightTexture(), event.getCamera(), event.getPartialTick().getGameTimeDeltaTicks(), event.getFrustum());
+				//System.out.println("dsf " + event.getPartialTick().getGameTimeDeltaTicks());
+				ClientTickHandler.particleManagerExtended().render(event.getPoseStack(), null, Minecraft.getInstance().gameRenderer.lightTexture(), event.getCamera(), event.getPartialTick().getGameTimeDeltaPartialTick(false), event.getFrustum());
 			}
 		}
     }
