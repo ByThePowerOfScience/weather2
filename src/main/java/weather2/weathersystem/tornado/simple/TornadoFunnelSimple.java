@@ -130,7 +130,8 @@ public class TornadoFunnelSimple {
                          * TODO: for LT, turn back on when LT is needed, activates dependency on LTWeather / Tropicraft
                          */
                         //ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
-                    } else {
+                    }
+                    if (ent == null) {
                         ent = new Dolphin(EntityType.DOLPHIN, level);
                     }
                     if (ent == null) {

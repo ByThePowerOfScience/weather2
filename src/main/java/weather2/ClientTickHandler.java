@@ -20,7 +20,7 @@ import weather2.util.WeatherUtil;
 import weather2.util.WindReader;
 import weather2.weathersystem.WeatherManagerClient;
 
-@Mod(Weather.MODID)
+
 public class ClientTickHandler
 {
 	public static final ClientTickHandler INSTANCE = new ClientTickHandler();

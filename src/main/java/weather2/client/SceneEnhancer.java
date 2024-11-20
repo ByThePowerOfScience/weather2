@@ -505,6 +505,8 @@ public class SceneEnhancer implements Runnable {
 		Random rand = CoroUtilMisc.random();
 
 		float windSpeed = windMan.getWindSpeed(posPlayer);
+		if (world.getGameTime() % 40 == 0)
+			//System.out.println("client wind speed: " + windSpeed + " - " + windMan.manager.getWorld().dimension() + " - " + windMan);
 
 		//funnel.tickGame();
 

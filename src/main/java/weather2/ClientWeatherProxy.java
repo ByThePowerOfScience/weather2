@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import weather2.client.SceneEnhancer;
 import weather2.ltcompat.ClientWeatherIntegration;
+import weather2.ltcompat.ServerWeatherIntegration;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.storm.WeatherObjectParticleStorm;
 
@@ -72,6 +73,7 @@ public final class ClientWeatherProxy {
 	}
 
 	public float getWindSpeed() {
+		System.out.println("client getWindSpeed" + ClientWeatherIntegration.get().getWindSpeed());
 		return ClientWeatherIntegration.get().getWindSpeed();
 	}
 

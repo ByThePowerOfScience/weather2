@@ -92,7 +92,9 @@ public class WindManager {
 	}
 	
 	public float getWindSpeed(@Nullable BlockPos pos, float extraHeightAmpMax) {
-		if (pos != null) {
+		//TODO: rethink use of Weather.isLoveTropicsInstalled() here, this was added just to get wind working in LT again, but theres probably a better way to integrate it
+		//this is new since adding turbines after last love tropics, so somethings not accounted for correctly
+		if (pos != null && !Weather.isLoveTropicsInstalled()) {
 			return getWindSpeedPositional(pos, extraHeightAmpMax);
 		}
 		if (windTimeEvent > 0 && (windSpeedEvent > windSpeedGust && windSpeedEvent > windSpeedGlobal)) {
@@ -338,6 +340,8 @@ public class WindManager {
 				}
 
 				float speedOverride = ServerWeatherProxy.getWindSpeed((ServerLevel) manager.getWorld());
+				//System.out.println("tick wind speed for " + manager.getWorld().dimension() + " - " + speedOverride);
+				//System.out.println("tick server wind speed for " + manager.getWorld().dimension() + " - " + speedOverride + " - " + this);
 				if (speedOverride != -1) {
 					windSpeedGlobal = speedOverride;
 				}
@@ -651,6 +655,11 @@ public class WindManager {
 	}
 
 	public CompoundTag nbtSyncForClient() {
+		/*float speedOverride = ServerWeatherProxy.getWindSpeed((ServerLevel) manager.getWorld());
+		System.out.println("sync wind speed for " + manager.getWorld().dimension() + " - " + speedOverride);
+		if (speedOverride != -1) {
+			windSpeedGlobal = speedOverride;
+		}*/
 		CompoundTag data = new CompoundTag();
 
 		//idea: only sync the wind data client cares about (the active priority wind)
@@ -681,6 +690,8 @@ public class WindManager {
 		windTimeEvent = parNBT.getInt("windTimeEvent");*/
 
 		windTimeGust = parNBT.getInt("windTimeGust");
+
+		//System.out.println("synced client wind speed for " + manager.getWorld().dimension() + " - " + windSpeedGlobal + " - " + this);
 	}
 
 	public Vec3 getWindForce(@Nullable BlockPos pos) {

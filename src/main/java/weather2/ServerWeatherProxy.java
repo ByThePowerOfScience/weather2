@@ -8,6 +8,8 @@ public class ServerWeatherProxy {
 
     public static float getWindSpeed(ServerLevel level) {
         if (isWeatherEffectsServerSideControlled()) {
+            //System.out.println("server getWindSpeed" + ServerWeatherIntegration.getWindSpeed(level));
+            //return 1f;//ServerWeatherIntegration.getWindSpeed(level);
             return ServerWeatherIntegration.getWindSpeed(level);
         } else {
             return -1;

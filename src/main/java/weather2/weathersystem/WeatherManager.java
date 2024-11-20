@@ -74,8 +74,8 @@ public abstract class WeatherManager implements IWorldData {
 				}
 			}
 
-			//tick wind
-			if (WeatherUtilConfig.listDimensionsWindEffects.contains(getWorld().dimension().location().toString())) {
+			//tick wind, always tick if love tropics installed, so the override on wind speed updates correctly
+			if (Weather.isLoveTropicsInstalled() || WeatherUtilConfig.listDimensionsWindEffects.contains(getWorld().dimension().location().toString())) {
 				wind.tick();
 			}
 		}
