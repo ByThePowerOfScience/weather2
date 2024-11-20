@@ -32,6 +32,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-          name: ${{ steps.jarname.outputs.jarname }}
-          path: ${{ steps.jar.outputs.jarfile }}
+        name: ${{ steps.jarname.outputs.jarname }}
+        path: ${{ steps.jar.outputs.jarfile }}
+        retention-days: 90
 
