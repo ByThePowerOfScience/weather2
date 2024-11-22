@@ -677,10 +677,10 @@ public class WeatherManagerServer extends WeatherManager {
 		data.put("data", cache.getNewNBT());
 
 		if (entP == null) {
-			//WeatherNetworking.HANDLER.send(PacketDistributor.DIMENSION.with(() -> getWorld().dimension()), new PacketNBTFromServer(data));
-			WeatherNetworkingv2.instance().serverSendToClientAll(data);
+			CULog.dbg("sending syncStormNew to " + getWorld().dimension());
+			WeatherNetworkingv2.instance().serverSendToClientsInDimension(data, getWorld());
 		} else {
-			//WeatherNetworking.HANDLER.sendTo(new PacketNBTFromServer(data), entP.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
+			CULog.dbg("sending syncStormNew to " + entP.getName());
 			WeatherNetworkingv2.instance().serverSendToClientPlayer(data, entP);
 		}
 	}

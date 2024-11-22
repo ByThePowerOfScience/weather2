@@ -128,6 +128,10 @@ public class WeatherObject {
 		nbt.putInt("size", size);
 		nbt.putInt("maxSize", maxSize);
 		nbt.putInt("weatherObjectType", this.weatherObjectType.ordinal());
+
+		/*if (manager != null && manager.getWorld() != null) {
+			nbt.putString("dimID", manager.getWorld().dimension().toString());
+		}*/
 	}
 
 	public CachedNBTTagCompound getNbtCache() {

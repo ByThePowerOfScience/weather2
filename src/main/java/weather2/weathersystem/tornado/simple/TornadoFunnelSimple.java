@@ -7,6 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -15,6 +17,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.tropicraft.core.common.entity.TropicraftEntities;
+import net.tropicraft.core.common.entity.underdasea.SharkEntity;
 import weather2.Weather;
 import weather2.weathersystem.storm.StormObject;
 import weather2.weathersystem.tornado.ActiveTornadoConfig;
@@ -108,7 +113,7 @@ public class TornadoFunnelSimple {
             double dist = posLayer.distanceTo(posLayerLower);
             //easy way to fix the spawning at 0,0 issue
             if (dist > 50) {
-                CULog.dbg("teleporting tornado layer to lower piece");
+                //CULog.dbg("teleporting tornado layer to lower piece");
                 listLayers.get(i).setPos(new Vec3(posLayerLower.x, posLayerLower.y, posLayerLower.z));
             } else if (dist > 0.1F * (radius / radiusMax)) {
                 double dynamicSpeed = 15F * (Math.min(30F, dist) / 30F);
@@ -126,19 +131,20 @@ public class TornadoFunnelSimple {
                 if (level.getGameTime() % 20 == 0) {
                     Entity ent = null;
                     if (Weather.isLoveTropicsInstalled()) {
-                        /**
-                         * TODO: for LT, turn back on when LT is needed, activates dependency on LTWeather / Tropicraft
-                         */
-                        //ent = new SharkEntity(TropicraftEntities.HAMMERHEAD.get(), level);
+                        EntityType type = BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.parse("tropicraft:hammerhead"));
+                        if (type != null) {
+                            ent = new SharkEntity(type, level);
+                        }
+
                     }
                     if (ent == null) {
+                        if (Weather.isLoveTropicsInstalled()) {
+                            CULog.dbg("failed to create shark, falling back to dolphin");
+                        }
+
                         ent = new Dolphin(EntityType.DOLPHIN, level);
                     }
-                    if (ent == null) {
-                        CULog.log("SharkEntity not spawned, enable in weather mod");
-                        ent = new Dolphin(EntityType.DOLPHIN, level);
-                    }
-                    Vec3 posRand = new Vec3(pos.x + 0, pos.y + 3, pos.z - 5);
+                    Vec3 posRand = new Vec3(pos.x + 0, pos.y + 25, pos.z - 5);
                     ent.setPos(posRand);
                     ent.setDeltaMovement(3F, 0, 0);
                     level.addFreshEntity(ent);

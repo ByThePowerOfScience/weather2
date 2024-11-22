@@ -139,7 +139,7 @@ public class ServerTickHandler {
 					wm.addStormObject(stormObject);
 					wm.syncStormNew(stormObject);
 
-					CULog.dbg("processed imc message: " + tag);
+					CULog.dbg("processed imc message: " + tag + " - " + msg + " - " + wm.dimension);
 				} else if (msg.method().equals("firenado")) {
 					StormObject stormObject = new StormObject(wm);
 

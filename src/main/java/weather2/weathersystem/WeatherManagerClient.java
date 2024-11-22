@@ -1,5 +1,6 @@
 package weather2.weathersystem;
 
+import com.corosus.coroutil.util.CULog;
 import com.corosus.coroutil.util.CoroUtilMisc;
 import extendedrenderer.particle.entity.ParticleCube;
 import net.minecraft.client.Minecraft;
@@ -73,10 +74,23 @@ public class WeatherManagerClient extends WeatherManager {
 		String command = parNBT.getString("command");
 
 		if (command.equals("syncStormNew")) {
+
+			CULog.dbg("nbtSyncFromServer: " + parNBT);
+
 			//Weather.dbg("creating client side storm");
 			CompoundTag stormNBT = parNBT.getCompound("data");
 			long ID = stormNBT.getLong("ID");
-			Weather.dbg("syncStormNew, ID: " + ID);
+			Weather.dbg("syncStormNewsss, ID: " + ID);
+
+			//new check to workaround weird bug of WeatherNetworkingv2.instance().serverSendToClientsInDimension sending to every client no matter what
+			//turns out it was IDEA caching builds for some ungodly reason, remove this code
+			String dimID = stormNBT.getString("dimID");
+
+			/*CULog.dbg(dimID + " vs " + this.dimension.toString());
+			if (!dimID.equals(this.dimension.toString())) {
+				CULog.dbg("dimensions dont match, aborting sync of new tornado");
+				return;
+			}*/
 
 			EnumWeatherObjectType weatherObjectType = EnumWeatherObjectType.get(stormNBT.getInt("weatherObjectType"));
 

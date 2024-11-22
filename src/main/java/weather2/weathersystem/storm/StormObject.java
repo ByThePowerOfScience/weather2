@@ -2428,7 +2428,7 @@ public class StormObject extends WeatherObject {
 					}
 
 					if (entity.isInWater()) {
-						entity.getPersistentData().putBoolean("tornado_shoot", false);
+						//entity.getPersistentData().putBoolean("tornado_shoot", false);
 					}
 				}
 			}
